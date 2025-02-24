@@ -1,4 +1,4 @@
-package entryhandler
+package entry
 
 import (
 	"bytes"

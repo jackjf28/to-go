@@ -5,9 +5,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/jackjf28/to-go/entryhandler"
+	//"github.com/jackjf28/to-go/entry"
 	"io/fs"
-
 	//"path/filepath"
 	//"io"
 	//"log"
@@ -16,6 +15,8 @@ import (
 )
 
 const DATA_DIR = "./data"
+
+var ()
 
 func checkForDataDir() {
 	dirExists, err := exists(DATA_DIR)
