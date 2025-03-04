@@ -5,7 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	//"github.com/jackjf28/to-go/entry"
+	"github.com/jackjf28/to-go/entry"
 	"io/fs"
 	//"path/filepath"
 	//"io"
@@ -28,7 +28,7 @@ func checkForDataDir() {
 
 func formatEntry(s string) string {
 	trimmed := strings.TrimSpace(s)
-	result := trimmed + "\n"
+	result := trimmed
 	return result
 }
 
@@ -52,20 +52,20 @@ func openTodoFile(path string) (*os.File, error) {
 	} else {
 		//f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
 		f, err := os.Create(path)
+		f.Write([]byte("ID,Task,IsComplete,CreatedAt,CompletedAt"))
 		return f, err
 	}
 }
 
-func handleNewEntry(entry string) {
-	fmt.Println("Inserting entry: ", entry)
+func writeNewEntry(todo entry.TodoEntry) {
+	fmt.Println("Inserting entry: \n", todo.String())
 
 	f, err := openTodoFile("./data/todos.csv")
 	check(err)
 	defer f.Close()
 
 	w := bufio.NewWriter(f)
-	line := formatEntry(entry)
-	n, err := w.Write([]byte(line))
+	n, err := w.Write([]byte(todo.Csv()))
 	w.Flush()
 	fmt.Printf("Wrote %d bytes.\n", n)
 }
@@ -78,7 +78,7 @@ func check(e error) {
 
 func main() {
 	entryCmd := flag.NewFlagSet("entry", flag.ExitOnError)
-	entryNew := entryCmd.String("new", "", "create a new entry")
+	entryNew := entryCmd.String("new", "", "comma-separated list of values")
 
 	if len(os.Args) < 2 {
 		fmt.Println("'new' command is required")
@@ -89,10 +89,12 @@ func main() {
 	case "entry":
 		checkForDataDir()
 		entryCmd.Parse(os.Args[2:])
-		fmt.Println("subcommand 'entry'")
-		fmt.Println("  new:", *entryNew)
+		//fmt.Println("subcommand 'entry'")
+		//fmt.Println("  new:", *entryNew)
 		if *entryNew != "" {
-			handleNewEntry(*entryNew)
+			fmtEntry := formatEntry(*entryNew)
+			todo := entry.New(fmtEntry)
+			writeNewEntry(*todo)
 		}
 	default:
 		fmt.Println("expected 'entry' subcommands")
